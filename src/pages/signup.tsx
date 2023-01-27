@@ -2,17 +2,17 @@ import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import { FiLock } from 'react-icons/fi';
+import { FiChevronLeft, FiLock } from 'react-icons/fi';
 import Logo from '../../public/Logo.png';
 
-const Login = () => {
+const SignUp = () => {
   const [email, setEmail] = useState<string | undefined>();
   const [password, setPassword] = useState<string | undefined>();
 
   return (
     <>
       <Head>
-        <title>Login | LinkSpaceApp</title>
+        <title>Sign Up | LinkSpaceApp</title>
         <meta name="description" content="A Linktree inspired app." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -23,7 +23,7 @@ const Login = () => {
             <div>
               <Image className="w-20 mx-auto" src={Logo} alt="" />
               <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-                Sign in to your account
+                Create an account
               </h2>
             </div>
             <form className="mt-8 space-y-6" action="#" method="POST">
@@ -59,56 +59,19 @@ const Login = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <div className="flex items-center">
-                  <input
-                    id="remember-me"
-                    name="remember-me"
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <label
-                    htmlFor="remember-me"
-                    className="ml-2 block text-sm text-gray-900"
-                  >
-                    Remember me
-                  </label>
-                </div>
-
-                <div className="text-sm">
-                  <Link
-                    href="#"
-                    className="font-medium text-[#043569] hover:text-[#043569]/70"
-                  >
-                    Forgot your password?
-                  </Link>
-                </div>
-              </div>
-
               <div className="flex flex-col gap-3">
                 <button
                   type="submit"
-                  className="group relative flex w-full justify-center rounded-md border border-transparent bg-[#043569] py-2 px-4 text-sm font-medium text-white hover:bg-[#043569]/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  className="flex w-full justify-center rounded-md border border-transparent bg-[#043569] py-2 px-4 text-sm font-medium text-white hover:bg-[#043569]/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                    <FiLock
-                      className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
-                      aria-hidden="true"
-                    />
-                  </span>
-                  Sign in
+                  Sign up
                 </button>
-                <div className="flex gap-2 items-center text-[#043569]">
-                  <span className="h-[1.2px] w-full bg-[#043569]"></span>
-                  <p>or</p>
-                  <span className="h-[1.2px] w-full bg-[#043569]"></span>
-                </div>
                 <Link
-                  href="/signup"
-                  type="submit"
-                  className="text-black flex w-full justify-center rounded-md border border-transparent bg-[#e1e7eb] py-2 px-4 text-sm font-medium hover:bg-[#e1e7eb]/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  className="flex items-center text-blue-900 hover:text-blue-800 mt-5 text-sm hover:underline underline-offset-4 w-fit"
+                  href="/login"
                 >
-                  Sign Up
+                  <FiChevronLeft />
+                  Login
                 </Link>
               </div>
             </form>
@@ -119,4 +82,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignUp;
