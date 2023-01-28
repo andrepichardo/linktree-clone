@@ -2,13 +2,27 @@ import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import { FiChevronLeft, FiLock } from 'react-icons/fi';
+import { FiChevronLeft } from 'react-icons/fi';
+import supabase from 'utils/supabaseClient';
 import Logo from '../../public/Logo.png';
 
 const SignUp = () => {
   const [email, setEmail] = useState<string | undefined>();
   const [password, setPassword] = useState<string | undefined>();
 
+  async function signUpWithEmail() {
+    try {
+      if (email && password) {
+        const resp = await supabase.auth.signUp({
+          email: email,
+          password: password,
+        });
+        if (resp.error) throw resp.error;
+        const userId = resp.data.user?.id;
+        console.log(userId);
+      }
+    } catch {}
+  }
   return (
     <>
       <Head>
@@ -34,6 +48,7 @@ const SignUp = () => {
                     Email address
                   </label>
                   <input
+                    onChange={(e) => setEmail(e.target.value)}
                     id="email-address"
                     name="email"
                     type="email"
@@ -48,6 +63,7 @@ const SignUp = () => {
                     Password
                   </label>
                   <input
+                    onChange={(e) => setPassword(e.target.value)}
                     id="password"
                     name="password"
                     type="password"
@@ -61,7 +77,8 @@ const SignUp = () => {
 
               <div className="flex flex-col gap-3">
                 <button
-                  type="submit"
+                  onClick={signUpWithEmail}
+                  type="button"
                   className="flex w-full justify-center rounded-md border border-transparent bg-[#043569] py-2 px-4 text-sm font-medium text-white hover:bg-[#043569]/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                   Sign up

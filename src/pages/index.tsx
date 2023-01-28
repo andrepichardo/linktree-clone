@@ -1,6 +1,24 @@
 import Head from 'next/head';
+import supabase from 'utils/supabaseClient';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [userID, setUserId] = useState<string | undefined>();
+
+  useEffect(() => {
+    const getUser = async () => {
+      const user = await supabase.auth.getUser();
+      console.log(user);
+      if (user) {
+        const userId = user.data.user?.id;
+        setIsAuthenticated(true);
+        setUserId(userId);
+      }
+    };
+    getUser();
+  }, []);
+
   return (
     <>
       <Head>

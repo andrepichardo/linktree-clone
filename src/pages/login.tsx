@@ -1,13 +1,31 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { FiLock } from 'react-icons/fi';
+import supabase from 'utils/supabaseClient';
 import Logo from '../../public/Logo.png';
 
 const Login = () => {
   const [email, setEmail] = useState<string | undefined>();
   const [password, setPassword] = useState<string | undefined>();
+  const router = useRouter();
+
+  async function signInWithEmail() {
+    try {
+      if (email && password) {
+        const resp = await supabase.auth.signInWithPassword({
+          email: email,
+          password: password,
+        });
+        if (resp.error) throw resp.error;
+        const userId = resp.data.user?.id;
+        console.log(userId);
+        router.push('/');
+      }
+    } catch {}
+  }
 
   return (
     <>
@@ -34,6 +52,7 @@ const Login = () => {
                     Email address
                   </label>
                   <input
+                    onChange={(e) => setEmail(e.target.value)}
                     id="email-address"
                     name="email"
                     type="email"
@@ -48,6 +67,7 @@ const Login = () => {
                     Password
                   </label>
                   <input
+                    onChange={(e) => setPassword(e.target.value)}
                     id="password"
                     name="password"
                     type="password"
@@ -87,7 +107,8 @@ const Login = () => {
 
               <div className="flex flex-col gap-3">
                 <button
-                  type="submit"
+                  onClick={signInWithEmail}
+                  type="button"
                   className="group relative flex w-full justify-center rounded-md border border-transparent bg-[#043569] py-2 px-4 text-sm font-medium text-white hover:bg-[#043569]/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3">
