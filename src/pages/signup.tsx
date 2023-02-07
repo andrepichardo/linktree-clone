@@ -31,7 +31,7 @@ const SignUp = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="h-screen bg-gradient-to-b from-sky-400 to-sky-700">
+      <div className="h-screen bg-gradient-to-b from-sky-500 to-sky-800">
         <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
           <div className="w-full max-w-md space-y-8">
             <div>
