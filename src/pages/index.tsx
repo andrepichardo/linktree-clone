@@ -1,7 +1,9 @@
 import Head from 'next/head';
 import supabase from 'utils/supabaseClient';
+import ImageUploading, { ImageListType } from 'react-images-uploading';
 import { useEffect, useState } from 'react';
-import { FiLoader } from 'react-icons/fi';
+import { FiLoader, FiTrash, FiUpload } from 'react-icons/fi';
+import Image from 'next/image';
 type Link = {
   title: string;
   url: string;
@@ -16,6 +18,11 @@ export default function Home() {
     'Add new Link'
   );
   const [links, setLinks] = useState<Link[]>();
+  const [images, setImages] = useState<ImageListType>([]);
+
+  const onChange = (imageList: ImageListType) => {
+    setImages(imageList);
+  };
 
   useEffect(() => {
     const getUser = async () => {
@@ -83,7 +90,7 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex flex-col w-full min-h-screen justify-center items-center bg-gradient-to-b from-sky-500 to-sky-800">
+      <main className="flex flex-col w-full min-h-screen justify-center items-center bg-gradient-to-b from-sky-500 to-sky-800 py-6">
         <div className="flex flex-col items-center gap-4 max-w-sm w-full px-4">
           {links ? (
             links?.map((link: Link, index: number) => {
@@ -141,6 +148,63 @@ export default function Home() {
             >
               {addButton}
             </button>
+            <ImageUploading
+              multiple
+              value={images}
+              onChange={onChange}
+              maxNumber={1}
+              dataURLKey="data_url"
+            >
+              {({
+                imageList,
+                onImageUpload,
+                onImageRemoveAll,
+                onImageUpdate,
+                onImageRemove,
+                isDragging,
+                dragProps,
+              }) => (
+                // write your building UI
+                <div className="flex flex-col items-center justify-center bg-gray-200 border-2 border-dashed border-gray-400 rounded-md">
+                  <button
+                    className="text-gray-500 italic font-semibold rounded-md py-4 px-4"
+                    style={isDragging ? { color: 'red' } : undefined}
+                    onClick={onImageUpload}
+                    {...dragProps}
+                  >
+                    Click to upload new image or drag and drop a new image here
+                  </button>
+                  {imageList.map((image, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-col items-center gap-3"
+                    >
+                      <Image
+                        className="rounded-lg min-w-[120px] max-w-[120px] min-h-[120px] max-h-[120px]"
+                        src={image.data_url}
+                        alt=""
+                        width={120}
+                        height={120}
+                      />
+                      <div className="flex gap-3 mb-3">
+                        <button
+                          className="hover:bg-gray-300 p-2 rounded-md"
+                          onClick={() => onImageUpdate(index)}
+                        >
+                          <FiUpload className="text-blue-500 w-5 h-5" />
+                        </button>
+                        <button
+                          className="hover:bg-gray-300 p-2 rounded-md"
+                          onClick={() => onImageRemove(index)}
+                        >
+                          <FiTrash className="text-red-500 w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </ImageUploading>
           </div>
         )}
       </main>
