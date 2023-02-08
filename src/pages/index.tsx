@@ -19,6 +19,9 @@ export default function Home() {
   );
   const [links, setLinks] = useState<Link[]>();
   const [images, setImages] = useState<ImageListType>([]);
+  const [profilePictureUrl, setProfilePictureUrl] = useState<
+    string | undefined
+  >();
 
   const onChange = (imageList: ImageListType) => {
     setImages(imageList);
@@ -56,6 +59,26 @@ export default function Home() {
     }
   }, [userId]);
 
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('profile_picture_url')
+          .eq('id', userId);
+        if (error) throw error;
+        const profile_picture_url = data[0]['profile_picture_url'];
+        setProfilePictureUrl(profile_picture_url);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (userId) {
+      getUser();
+    }
+  }, [userId]);
+
   const addNewLink = async () => {
     try {
       if (title && url && userId) {
@@ -82,6 +105,31 @@ export default function Home() {
     setAddButton('Add new Link');
   };
 
+  const uploadProfilePicture = async () => {
+    try {
+      if (images.length > 0) {
+        const image = images[0];
+        if (image.file && userId) {
+          const { data, error } = await supabase.storage
+            .from('public')
+            .upload(`${userId}/${image.file.name}`, image.file, {
+              upsert: true,
+            });
+          if (error) throw error;
+          const resp = supabase.storage.from('public').getPublicUrl(data.path);
+          const publicUrl = resp.data.publicUrl;
+          const updateUserResponse = await supabase
+            .from('users')
+            .update({ profile_picture_url: publicUrl })
+            .eq('id', userId);
+          if (updateUserResponse.error) throw error;
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <Head>
@@ -92,6 +140,17 @@ export default function Home() {
       </Head>
       <main className="flex flex-col w-full min-h-screen justify-center items-center bg-gradient-to-b from-sky-500 to-sky-800 py-6">
         <div className="flex flex-col items-center gap-4 max-w-sm w-full px-4">
+          {profilePictureUrl ? (
+            <Image
+              className="rounded-full"
+              src={profilePictureUrl}
+              width={120}
+              height={120}
+              alt=""
+            />
+          ) : (
+            ''
+          )}
           {links ? (
             links?.map((link: Link, index: number) => {
               return (
@@ -144,7 +203,7 @@ export default function Home() {
             </div>
             <button
               onClick={addNewLink}
-              className="mt-5 bg-emerald-500 rounded-lg shadow-lg text-white font-semibold px-5 py-1.5 hover:bg-emerald-500/80 active:scale-95 transition-all self-center"
+              className="my-5 bg-emerald-500 rounded-lg shadow-lg text-white font-semibold px-5 py-1.5 hover:bg-emerald-500/80 active:scale-95 transition-all self-center"
             >
               {addButton}
             </button>
@@ -158,7 +217,6 @@ export default function Home() {
               {({
                 imageList,
                 onImageUpload,
-                onImageRemoveAll,
                 onImageUpdate,
                 onImageRemove,
                 isDragging,
@@ -181,7 +239,7 @@ export default function Home() {
                     >
                       <Image
                         className="rounded-lg min-w-[120px] max-w-[120px] min-h-[120px] max-h-[120px]"
-                        src={image.data_url}
+                        src={images[0]['data_url']}
                         alt=""
                         width={120}
                         height={120}
@@ -205,6 +263,12 @@ export default function Home() {
                 </div>
               )}
             </ImageUploading>
+            <button
+              onClick={uploadProfilePicture}
+              className="mt-5 bg-emerald-500 rounded-lg shadow-lg text-white font-semibold px-5 py-1.5 hover:bg-emerald-500/80 active:scale-95 transition-all self-center"
+            >
+              Upload profile picture
+            </button>
           </div>
         )}
       </main>

@@ -19,10 +19,23 @@ const SignUp = () => {
         });
         if (resp.error) throw resp.error;
         const userId = resp.data.user?.id;
-        console.log(userId);
+        if (userId) {
+          await createUser(userId);
+          console.log(userId);
+        }
       }
     } catch {}
   }
+
+  async function createUser(userId: string) {
+    try {
+      const { error } = await supabase.from('users').insert({ id: userId });
+      if (error) throw error;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <>
       <Head>
