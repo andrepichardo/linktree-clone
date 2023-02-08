@@ -4,6 +4,7 @@ import ImageUploading, { ImageListType } from 'react-images-uploading';
 import { useEffect, useState } from 'react';
 import { FiLoader, FiTrash, FiUpload } from 'react-icons/fi';
 import { FaSpinner } from 'react-icons/fa';
+import samplePicture from '../../../public/images/sampleProfilePic.png';
 import Image from 'next/image';
 type Link = {
   title: string;
@@ -16,6 +17,9 @@ export default function Home() {
   const [title, setTitle] = useState<string | undefined>();
   const [url, setUrl] = useState<string | undefined>();
   const [addButton, setAddButton] = useState<any>('Add new Link');
+  const [uploadButton, setUploadButton] = useState<any>(
+    'Upload Profile Picture'
+  );
   const [links, setLinks] = useState<Link[]>();
   const [images, setImages] = useState<ImageListType>([]);
   const [profilePictureUrl, setProfilePictureUrl] = useState<
@@ -67,7 +71,7 @@ export default function Home() {
           .eq('id', userId);
         if (error) throw error;
         const profile_picture_url = data[0]['profile_picture_url'];
-        setProfilePictureUrl(profile_picture_url);
+        setProfilePictureUrl(profile_picture_url || samplePicture);
       } catch (error) {
         console.log(error);
       }
@@ -111,6 +115,11 @@ export default function Home() {
   const uploadProfilePicture = async () => {
     try {
       if (images.length > 0) {
+        setUploadButton(
+          <div className="flex items-center gap-1">
+            Uploading <FaSpinner className="animate-spin" />
+          </div>
+        );
         const image = images[0];
         if (image.file && userId) {
           const { data, error } = await supabase.storage
@@ -126,6 +135,7 @@ export default function Home() {
             .update({ profile_picture_url: publicUrl })
             .eq('id', userId);
           if (updateUserResponse.error) throw error;
+          window.location.reload();
         }
       }
     } catch (error) {
@@ -145,14 +155,14 @@ export default function Home() {
         <div className="flex flex-col items-center gap-4 max-w-sm w-full px-4">
           {profilePictureUrl ? (
             <Image
-              className="rounded-full w-full h-full max-w-[120px] max-h-[120px]"
+              className="rounded-full bg-white border-2 border-white w-full h-full sm:min-w-[120px] max-w-[120px] sm:min-h-[120px] max-h-[120px] shrink"
               src={profilePictureUrl}
               width={120}
               height={120}
               alt=""
             />
           ) : (
-            ''
+            <FiLoader className="animate-spin text-4xl text-emerald-500" />
           )}
           {links ? (
             links?.map((link: Link, index: number) => {
@@ -267,11 +277,10 @@ export default function Home() {
               )}
             </ImageUploading>
             <button
-              type="submit"
               onClick={uploadProfilePicture}
               className="mt-5 bg-emerald-500 rounded-lg shadow-lg text-white font-semibold px-5 py-1.5 hover:bg-emerald-500/80 active:scale-95 transition-all self-center"
             >
-              Upload profile picture
+              {uploadButton}
             </button>
           </div>
         )}

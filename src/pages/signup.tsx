@@ -2,6 +2,7 @@ import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { FaSpinner } from 'react-icons/fa';
 import { FiChevronLeft } from 'react-icons/fi';
 import supabase from 'utils/supabaseClient';
 import Logo from '../../public/Logo.png';
@@ -9,9 +10,16 @@ import Logo from '../../public/Logo.png';
 const SignUp = () => {
   const [email, setEmail] = useState<string | undefined>();
   const [password, setPassword] = useState<string | undefined>();
+  const [username, setUsername] = useState<string | undefined>();
+  const [signupButton, setSignupButton] = useState<any>('Sign Up');
 
   async function signUpWithEmail() {
     try {
+      setSignupButton(
+        <div className="flex items-center gap-1">
+          Signing Up <FaSpinner className="animate-spin" />
+        </div>
+      );
       if (email && password) {
         const resp = await supabase.auth.signUp({
           email: email,
@@ -23,13 +31,21 @@ const SignUp = () => {
           await createUser(userId);
           console.log(userId);
         }
+        setEmail('');
+        setPassword('');
+        setUsername('');
       }
-    } catch {}
+    } catch (error) {
+      console.log(error);
+    }
+    setSignupButton('Sign Up');
   }
 
   async function createUser(userId: string) {
     try {
-      const { error } = await supabase.from('users').insert({ id: userId });
+      const { error } = await supabase
+        .from('users')
+        .insert({ id: userId, username: username });
       if (error) throw error;
     } catch (error) {
       console.log(error);
@@ -61,6 +77,7 @@ const SignUp = () => {
                     Email address
                   </label>
                   <input
+                    value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     id="email-address"
                     name="email"
@@ -72,10 +89,26 @@ const SignUp = () => {
                   />
                 </div>
                 <div>
+                  <label htmlFor="username" className="sr-only">
+                    Username
+                  </label>
+                  <input
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    id="username"
+                    name="username"
+                    type="text"
+                    required
+                    className="relative block w-full appearance-none rounded-none border border-gray-300 px-3 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                    placeholder="Username"
+                  />
+                </div>
+                <div>
                   <label htmlFor="password" className="sr-only">
                     Password
                   </label>
                   <input
+                    value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     id="password"
                     name="password"
@@ -94,7 +127,7 @@ const SignUp = () => {
                   type="button"
                   className="flex w-full justify-center rounded-md border border-transparent bg-[#043569] py-2 px-4 text-sm font-medium text-white hover:bg-[#043569]/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
-                  Sign up
+                  {signupButton}
                 </button>
                 <Link
                   className="flex items-center text-blue-900 hover:text-blue-800 mt-5 text-sm hover:underline underline-offset-4 w-fit"

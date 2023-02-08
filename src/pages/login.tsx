@@ -22,7 +22,7 @@ const Login = () => {
         if (resp.error) throw resp.error;
         const userId = resp.data.user?.id;
         console.log(userId);
-        router.push('/');
+        router.push('/andrepichardo');
       }
     } catch {}
   }
