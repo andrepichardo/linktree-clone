@@ -3,6 +3,7 @@ import supabase from 'utils/supabaseClient';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
 import { useEffect, useState } from 'react';
 import { FiLoader, FiTrash, FiUpload } from 'react-icons/fi';
+import { FaSpinner } from 'react-icons/fa';
 import Image from 'next/image';
 type Link = {
   title: string;
@@ -14,9 +15,7 @@ export default function Home() {
   const [userId, setUserId] = useState<string | undefined>();
   const [title, setTitle] = useState<string | undefined>();
   const [url, setUrl] = useState<string | undefined>();
-  const [addButton, setAddButton] = useState<string | undefined>(
-    'Add new Link'
-  );
+  const [addButton, setAddButton] = useState<any>('Add new Link');
   const [links, setLinks] = useState<Link[]>();
   const [images, setImages] = useState<ImageListType>([]);
   const [profilePictureUrl, setProfilePictureUrl] = useState<
@@ -81,6 +80,11 @@ export default function Home() {
 
   const addNewLink = async () => {
     try {
+      setAddButton(
+        <div className="flex items-center gap-1">
+          Adding <FaSpinner className="animate-spin" />
+        </div>
+      );
       if (title && url && userId) {
         const { data, error } = await supabase
           .from('links')
@@ -92,7 +96,6 @@ export default function Home() {
           .select();
         if (error) throw error;
         console.log(data);
-        setAddButton('Adding');
         setTitle('');
         setUrl('');
         if (links) {
@@ -142,7 +145,7 @@ export default function Home() {
         <div className="flex flex-col items-center gap-4 max-w-sm w-full px-4">
           {profilePictureUrl ? (
             <Image
-              className="rounded-full"
+              className="rounded-full w-full h-full max-w-[120px] max-h-[120px]"
               src={profilePictureUrl}
               width={120}
               height={120}
@@ -264,6 +267,7 @@ export default function Home() {
               )}
             </ImageUploading>
             <button
+              type="submit"
               onClick={uploadProfilePicture}
               className="mt-5 bg-emerald-500 rounded-lg shadow-lg text-white font-semibold px-5 py-1.5 hover:bg-emerald-500/80 active:scale-95 transition-all self-center"
             >
