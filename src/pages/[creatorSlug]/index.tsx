@@ -148,6 +148,18 @@ export default function Home() {
     }
   };
 
+  async function SignOut() {
+    try {
+      if (isAuthenticated) {
+        const resp = await supabase.auth.signOut();
+        if (resp.error) throw resp.error;
+        router.push('/login');
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <>
       <Head>
@@ -157,6 +169,14 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex flex-col w-full min-h-screen justify-center items-center bg-gradient-to-b from-sky-500 to-sky-800 py-6">
+        {isAuthenticated && (
+          <button
+            onClick={SignOut}
+            className="bg-red-500 hover:bg-red-400 px-4 py-1 absolute top-3 right-5 text-white font-mono rounded-xl"
+          >
+            Log out
+          </button>
+        )}
         <div className="flex flex-col items-center gap-4 max-w-sm w-full px-4">
           {profilePictureUrl ? (
             <Image
