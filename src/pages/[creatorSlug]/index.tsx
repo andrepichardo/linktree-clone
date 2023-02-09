@@ -39,12 +39,28 @@ export default function Home() {
       console.log(user);
       if (user.data.user) {
         const userId = user.data.user?.id;
-        setIsAuthenticated(true);
-        setUserId(userId);
+
+        try {
+          const { data, error } = await supabase
+            .from('users')
+            .select('username')
+            .eq('id', userId)
+            .single();
+          if (error) throw error;
+          const username = data.username;
+
+          if (creatorSlug == username) {
+            setIsAuthenticated(true);
+          } else {
+            setIsAuthenticated(false);
+          }
+        } catch (error) {
+          console.log(error);
+        }
       }
     };
     getUser();
-  }, []);
+  }, [router, userId, creatorSlug]);
 
   useEffect(() => {
     const getLinks = async () => {
@@ -53,7 +69,6 @@ export default function Home() {
           .from('links')
           .select('title, url')
           .eq('user_id', userId);
-
         if (error) throw error;
         setLinks(data);
       } catch (error) {
@@ -79,13 +94,15 @@ export default function Home() {
         setUserId(userId);
       } catch (error) {
         console.log(error);
+        router.push('/404');
       }
     };
 
     if (creatorSlug) {
       getUser();
+      setUserId(userId);
     }
-  }, [creatorSlug]);
+  }, [creatorSlug, userId, router]);
 
   const addNewLink = async () => {
     try {
