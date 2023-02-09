@@ -22,9 +22,19 @@ const Login = () => {
         if (resp.error) throw resp.error;
         const userId = resp.data.user?.id;
         console.log(userId);
-        router.push('/andrepichardo');
+
+        const { data, error } = await supabase
+          .from('users')
+          .select('username')
+          .eq('id', userId)
+          .single();
+        if (error) throw error;
+        const username = data.username;
+        router.push(`/${username}`);
       }
-    } catch {}
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
