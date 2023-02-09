@@ -2,7 +2,7 @@ import Head from 'next/head';
 import supabase from 'utils/supabaseClient';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
 import { useEffect, useState } from 'react';
-import { FiLoader, FiTrash, FiUpload } from 'react-icons/fi';
+import { FiLoader, FiLogOut, FiTrash, FiUpload } from 'react-icons/fi';
 import { FaSpinner } from 'react-icons/fa';
 import { useRouter } from 'next/router';
 import samplePicture from '../../../public/images/sampleProfilePic.png';
@@ -172,9 +172,9 @@ export default function Home() {
         {isAuthenticated && (
           <button
             onClick={SignOut}
-            className="bg-red-500 hover:bg-red-400 px-4 py-1 absolute top-3 right-5 text-white font-mono rounded-xl"
+            className="bg-red-500 hover:bg-red-500/80 transition-all p-2 flex justify-center items-center w-11 h-11 md:w-12 md:h-12 rounded-full absolute top-5 right-5 active:scale-95 text-white font-mono"
           >
-            Log out
+            <FiLogOut size={20} />
           </button>
         )}
         <div className="flex flex-col items-center gap-4 max-w-sm w-full px-4">

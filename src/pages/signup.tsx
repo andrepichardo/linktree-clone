@@ -125,7 +125,7 @@ const SignUp = () => {
                 <button
                   onClick={signUpWithEmail}
                   type="button"
-                  className="flex w-full justify-center rounded-md border border-transparent bg-[#043569] py-2 px-4 text-sm font-medium text-white hover:bg-[#043569]/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  className="flex w-full justify-center rounded-md border border-transparent shadow-lg hover:opacity-90 bg-gradient-to-br from-emerald-500 to-emerald-600 py-2 px-4 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                   {signupButton}
                 </button>
