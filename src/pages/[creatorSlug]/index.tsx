@@ -5,8 +5,10 @@ import { useEffect, useState } from 'react';
 import { FiLoader, FiLogOut, FiTrash, FiUpload } from 'react-icons/fi';
 import { FaSpinner } from 'react-icons/fa';
 import { useRouter } from 'next/router';
+import Logo from '../../../public/Logo.png';
 import samplePicture from '../../../public/images/sampleProfilePic.png';
 import Image from 'next/image';
+import Link from 'next/link';
 type Link = {
   title: string;
   url: string;
@@ -186,7 +188,16 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex flex-col w-full min-h-screen justify-center items-center bg-gradient-to-b from-sky-500 to-sky-800 py-6">
+      <main className="flex flex-col gap-2 w-full min-h-screen justify-center items-center bg-gradient-to-b from-sky-500 to-sky-800 py-4 md:py-8">
+        <Link
+          href="/"
+          className="flex md:absolute mb-6 top-5 left-5 justify-center items-end text-2xl italic text-sky-900 font-mono font-bold"
+        >
+          <h1>Link</h1>
+          <Image className="w-9 pl-0.5 translate-y-1" src={Logo} alt="" />
+          <h1>pace</h1>
+        </Link>
+
         {isAuthenticated && (
           <button
             onClick={SignOut}
@@ -198,7 +209,7 @@ export default function Home() {
         <div className="flex flex-col items-center gap-4 max-w-sm w-full px-4">
           {profilePictureUrl ? (
             <Image
-              className="rounded-full bg-white border-2 border-white w-full h-full sm:min-w-[120px] max-w-[120px] sm:min-h-[120px] max-h-[120px] shrink"
+              className="rounded-full bg-white border-2 border-white w-full h-full sm:min-w-[120px] max-w-[120px] min-h-[120px] max-h-[120px] shrink"
               src={profilePictureUrl}
               width={120}
               height={120}

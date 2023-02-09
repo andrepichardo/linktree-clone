@@ -64,8 +64,12 @@ const SignUp = () => {
         <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
           <div className="w-full max-w-md space-y-8">
             <div>
-              <Image className="w-20 mx-auto" src={Logo} alt="" />
-              <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+              <div className="flex w-full justify-center items-end text-4xl italic text-sky-900 font-mono font-bold">
+                <h1>Link</h1>
+                <Image className="w-16 pl-1 translate-y-3" src={Logo} alt="" />
+                <h1>pace</h1>
+              </div>
+              <h2 className="mt-6 text-center text-3xl font-semibold tracking-tight text-white">
                 Create an account
               </h2>
             </div>
@@ -130,16 +134,19 @@ const SignUp = () => {
                   {signupButton}
                 </button>
                 <Link
-                  className="flex items-center text-blue-900 hover:text-blue-800 mt-5 text-sm hover:underline underline-offset-4 w-fit"
+                  className="flex items-center text-white font-medium hover:text-blue-400 mt-5 text-sm hover:underline underline-offset-4 w-fit"
                   href="/login"
                 >
                   <FiChevronLeft />
-                  Login
+                  Back to Login
                 </Link>
               </div>
             </form>
           </div>
         </div>
+        <span className=" text-white w-full flex justify-center text-sm absolute bottom-5 mt-8 font-semibold font-mono">
+          © André Pichardo 2023
+        </span>
       </div>
     </>
   );

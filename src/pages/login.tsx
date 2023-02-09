@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { FaSpinner } from 'react-icons/fa';
 import { FiLock } from 'react-icons/fi';
 import supabase from 'utils/supabaseClient';
 import Logo from '../../public/Logo.png';
@@ -10,10 +11,16 @@ import Logo from '../../public/Logo.png';
 const Login = () => {
   const [email, setEmail] = useState<string | undefined>();
   const [password, setPassword] = useState<string | undefined>();
+  const [signinButton, setSigninButton] = useState<any>('Sign in');
   const router = useRouter();
 
   async function signInWithEmail() {
     try {
+      setSigninButton(
+        <div className="flex items-center gap-1">
+          Signing In <FaSpinner className="animate-spin" />
+        </div>
+      );
       if (email && password) {
         const resp = await supabase.auth.signInWithPassword({
           email: email,
@@ -35,6 +42,7 @@ const Login = () => {
     } catch (error) {
       console.log(error);
     }
+    setSigninButton('Sign In');
   }
 
   return (
@@ -49,8 +57,12 @@ const Login = () => {
         <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
           <div className="w-full max-w-md space-y-8">
             <div>
-              <Image className="w-20 mx-auto" src={Logo} alt="" />
-              <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+              <div className="flex w-full justify-center items-end text-4xl italic text-sky-900 font-mono font-bold">
+                <h1>Link</h1>
+                <Image className="w-16 pl-1 translate-y-3" src={Logo} alt="" />
+                <h1>pace</h1>
+              </div>
+              <h2 className="mt-6 text-center text-3xl font-semibold tracking-tight text-white">
                 Sign in to your account
               </h2>
             </div>
@@ -127,7 +139,7 @@ const Login = () => {
                       aria-hidden="true"
                     />
                   </span>
-                  Sign in
+                  {signinButton}
                 </button>
                 <div className="flex gap-2 items-center text-[#043569]">
                   <span className="h-[1.2px] w-full bg-[#043569]"></span>
@@ -137,7 +149,7 @@ const Login = () => {
                 <Link
                   href="/signup"
                   type="submit"
-                  className="text-black flex w-full justify-center rounded-md border border-transparent bg-[#e1e7eb] py-2 px-4 text-sm font-medium hover:bg-[#e1e7eb]/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  className="text-sky-900 flex w-full justify-center rounded-md border border-transparent bg-[#e1e7eb] py-2 px-4 text-sm font-medium hover:bg-[#e1e7eb]/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                   Sign Up
                 </Link>
@@ -145,6 +157,9 @@ const Login = () => {
             </form>
           </div>
         </div>
+        <span className=" text-white w-full flex justify-center text-sm absolute bottom-5 mt-8 font-semibold font-mono">
+          © André Pichardo 2023
+        </span>
       </div>
     </>
   );
