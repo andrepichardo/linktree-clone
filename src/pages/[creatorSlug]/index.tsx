@@ -28,6 +28,7 @@ export default function Home() {
   >();
   const router = useRouter();
   const { creatorSlug } = router.query;
+  const PageTitle = (creatorSlug || 'loading...') + ' | LinkSpace';
 
   const onChange = (imageList: ImageListType) => {
     setImages(imageList);
@@ -180,7 +181,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>{creatorSlug} | LinkSpaceApp </title>
+        <title>{PageTitle}</title>
         <meta name="description" content="A Linktree inspired app." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
