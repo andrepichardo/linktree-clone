@@ -11,7 +11,7 @@ import Logo from '../../public/Logo.png';
 const Login = () => {
   const [email, setEmail] = useState<string | undefined>();
   const [password, setPassword] = useState<string | undefined>();
-  const [signinButton, setSigninButton] = useState<any>('Sign in');
+  const [signinButton, setSigninButton] = useState<any>('Sign In');
   const router = useRouter();
 
   async function signInWithEmail() {
