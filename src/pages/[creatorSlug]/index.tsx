@@ -224,7 +224,7 @@ export default function Home() {
                 <div
                   onClick={(e) => {
                     e.preventDefault();
-                    window.location.href = link.url;
+                    window.open(link.url, '_blank');
                   }}
                   className="flex flex-col w-full items-center hover:scale-[97%] transition-all rounded-lg shadow-lg bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-semibold px-3 font-mono py-4 cursor-pointer"
                   key={index}
