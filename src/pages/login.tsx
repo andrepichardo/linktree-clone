@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import { FaSpinner } from 'react-icons/fa';
+import { FaExclamationCircle, FaSpinner } from 'react-icons/fa';
 import { FiLock } from 'react-icons/fi';
 import supabase from 'utils/supabaseClient';
 import Logo from '../../public/Logo.png';
@@ -46,6 +46,10 @@ const Login = () => {
             id: 'success',
           }
         );
+      } else {
+        toast(<span>Please fill all required fields.</span>, {
+          icon: <FaExclamationCircle className="text-yellow-500" />,
+        });
       }
     } catch (error) {
       toast.error('Invalid credentials. Try again.');

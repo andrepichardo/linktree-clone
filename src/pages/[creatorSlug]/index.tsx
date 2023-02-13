@@ -129,7 +129,7 @@ export default function Home() {
         }
         toast.success('Link added successfully!');
       } else {
-        toast(<span>Please complete all required fields.</span>, {
+        toast(<span>Please fill all required fields.</span>, {
           icon: <FaExclamationCircle className="text-yellow-500" />,
         });
       }
