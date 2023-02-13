@@ -3,7 +3,8 @@ import supabase from 'utils/supabaseClient';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
 import { useEffect, useState } from 'react';
 import { FiLoader, FiLogOut, FiTrash, FiUpload } from 'react-icons/fi';
-import { FaSpinner } from 'react-icons/fa';
+import { FaExclamationCircle, FaSpinner } from 'react-icons/fa';
+import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/router';
 import Logo from '../../../public/Logo.png';
 import samplePicture from '../../../public/images/sampleProfilePic.png';
@@ -20,6 +21,9 @@ export default function Home() {
   const [title, setTitle] = useState<string | undefined>();
   const [url, setUrl] = useState<string | undefined>();
   const [addButton, setAddButton] = useState<any>('Add new Link');
+  const [signOutButton, setSignOutButton] = useState<any>(
+    <FiLogOut size={20} />
+  );
   const [uploadButton, setUploadButton] = useState<any>(
     'Upload Profile Picture'
   );
@@ -39,7 +43,6 @@ export default function Home() {
   useEffect(() => {
     const getUser = async () => {
       const user = await supabase.auth.getUser();
-      console.log(user);
       if (user.data.user) {
         const userId = user.data.user?.id;
 
@@ -57,9 +60,7 @@ export default function Home() {
           } else {
             setIsAuthenticated(false);
           }
-        } catch (error) {
-          console.log(error);
-        }
+        } catch (error) {}
       }
     };
     getUser();
@@ -74,9 +75,7 @@ export default function Home() {
           .eq('user_id', userId);
         if (error) throw error;
         setLinks(data);
-      } catch (error) {
-        console.log(error);
-      }
+      } catch (error) {}
     };
     if (userId) {
       getLinks();
@@ -96,7 +95,6 @@ export default function Home() {
         setProfilePictureUrl(profile_picture_url || samplePicture);
         setUserId(userId);
       } catch (error) {
-        console.log(error);
         router.push('/404');
       }
     };
@@ -124,27 +122,31 @@ export default function Home() {
           })
           .select();
         if (error) throw error;
-        console.log(data);
         setTitle('');
         setUrl('');
         if (links) {
           setLinks([...links, ...data]);
         }
+        toast.success('Link added successfully!');
+      } else {
+        toast(<span>Please complete all required fields.</span>, {
+          icon: <FaExclamationCircle className="text-yellow-500" />,
+        });
       }
     } catch (error) {
-      console.log(error);
+      toast.error('Error adding new link! Try again.');
     }
     setAddButton('Add new Link');
   };
 
   const uploadProfilePicture = async () => {
     try {
+      setUploadButton(
+        <div className="flex items-center gap-1">
+          Uploading <FaSpinner className="animate-spin" />
+        </div>
+      );
       if (images.length > 0) {
-        setUploadButton(
-          <div className="flex items-center gap-1">
-            Uploading <FaSpinner className="animate-spin" />
-          </div>
-        );
         const image = images[0];
         if (image.file && userId) {
           const { data, error } = await supabase.storage
@@ -160,23 +162,32 @@ export default function Home() {
             .update({ profile_picture_url: publicUrl })
             .eq('id', userId);
           if (updateUserResponse.error) throw error;
-          window.location.reload();
+          if (profilePictureUrl) {
+            setProfilePictureUrl(publicUrl);
+          }
+          toast.success('Profile picture added successfully!');
         }
+      } else {
+        toast(<span>Please select an image.</span>, {
+          icon: <FaExclamationCircle className="text-yellow-500" />,
+        });
       }
     } catch (error) {
-      console.log(error);
+      toast.error('Error uploading image. Try again.');
     }
+    setUploadButton('Upload Profile Picture');
   };
 
   async function SignOut() {
     try {
+      setSignOutButton(<FaSpinner className="animate-spin" size={20} />);
       if (isAuthenticated) {
         const resp = await supabase.auth.signOut();
         if (resp.error) throw resp.error;
         router.push('/login');
       }
     } catch (error) {
-      console.log(error);
+      toast.error(`${error}`);
     }
   }
 
@@ -203,12 +214,14 @@ export default function Home() {
             onClick={SignOut}
             className="bg-red-500 hover:bg-red-500/80 transition-all p-2 flex justify-center items-center w-11 h-11 md:w-12 md:h-12 rounded-full absolute top-5 right-5 active:scale-95 text-white font-mono"
           >
-            <FiLogOut size={20} />
+            {signOutButton}
           </button>
         )}
         <div className="flex flex-col items-center gap-4 max-w-sm w-full px-4">
+          <Toaster />
           {profilePictureUrl ? (
             <Image
+              priority
               className="rounded-full bg-white border-2 border-white w-full h-full sm:min-w-[120px] max-w-[120px] min-h-[120px] max-h-[120px] shrink"
               src={profilePictureUrl}
               width={120}
@@ -216,7 +229,7 @@ export default function Home() {
               alt=""
             />
           ) : (
-            <FiLoader className="animate-spin text-4xl text-emerald-500" />
+            <FiLoader className="animate-spin text-4xl text-white" />
           )}
           {links ? (
             links?.map((link: Link, index: number) => {
@@ -234,7 +247,7 @@ export default function Home() {
               );
             })
           ) : (
-            <FiLoader className="animate-spin text-white text-4xl" />
+            <FiLoader className="animate-spin text-emerald-500 text-4xl" />
           )}
         </div>
 

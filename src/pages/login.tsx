@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 import { FaSpinner } from 'react-icons/fa';
 import { FiLock } from 'react-icons/fi';
 import supabase from 'utils/supabaseClient';
@@ -28,7 +29,6 @@ const Login = () => {
         });
         if (resp.error) throw resp.error;
         const userId = resp.data.user?.id;
-        console.log(userId);
 
         const { data, error } = await supabase
           .from('users')
@@ -38,9 +38,17 @@ const Login = () => {
         if (error) throw error;
         const username = data.username;
         router.push(`/${username}`);
+        toast.success(
+          <span className="text-sm">
+            Login successful! Welcome <b>{username}</b>.
+          </span>,
+          {
+            id: 'success',
+          }
+        );
       }
     } catch (error) {
-      console.log(error);
+      toast.error('Invalid credentials. Try again.');
     }
     setSigninButton('Sign In');
   }
@@ -141,6 +149,7 @@ const Login = () => {
                   </span>
                   {signinButton}
                 </button>
+                <Toaster />
                 <div className="flex gap-2 items-center text-[#043569]">
                   <span className="h-[1.2px] w-full bg-[#043569]"></span>
                   <p>or</p>

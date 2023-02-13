@@ -13,7 +13,6 @@ export default function Home() {
   useEffect(() => {
     const getUser = async () => {
       const user = await supabase.auth.getUser();
-      console.log(user);
       if (user.data.user) {
         const userId = user.data.user?.id;
         setIsAuthenticated(true);
@@ -33,9 +32,7 @@ export default function Home() {
           if (error) throw error;
           const username = data.username;
           router.push(`/${username}`);
-        } catch (error) {
-          console.log(error);
-        }
+        } catch (error) {}
       }
     };
     getUser();

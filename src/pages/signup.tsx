@@ -2,7 +2,8 @@ import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import { FaSpinner } from 'react-icons/fa';
+import toast, { Toaster } from 'react-hot-toast';
+import { FaExclamationCircle, FaSpinner } from 'react-icons/fa';
 import { FiChevronLeft } from 'react-icons/fi';
 import supabase from 'utils/supabaseClient';
 import Logo from '../../public/Logo.png';
@@ -20,7 +21,7 @@ const SignUp = () => {
           Signing Up <FaSpinner className="animate-spin" />
         </div>
       );
-      if (email && password) {
+      if (email && password && username) {
         const resp = await supabase.auth.signUp({
           email: email,
           password: password,
@@ -29,14 +30,14 @@ const SignUp = () => {
         const userId = resp.data.user?.id;
         if (userId) {
           await createUser(userId);
-          console.log(userId);
         }
-        setEmail('');
-        setPassword('');
-        setUsername('');
+      } else {
+        toast(<span>Please complete all required fields.</span>, {
+          icon: <FaExclamationCircle className="text-yellow-500" />,
+        });
       }
     } catch (error) {
-      console.log(error);
+      toast.error(`${error}`);
     }
     setSignupButton('Sign Up');
   }
@@ -47,8 +48,19 @@ const SignUp = () => {
         .from('users')
         .insert({ id: userId, username: username });
       if (error) throw error;
+      toast.success(
+        <div className="flex flex-col gap-2">
+          <span>Your account has been successfully created!</span>
+          <b>
+            Check your email inbox and follow the link to verify your account.
+          </b>
+        </div>
+      );
+      setEmail('');
+      setPassword('');
+      setUsername('');
     } catch (error) {
-      console.log(error);
+      toast.error('That email address is already in use!');
     }
   }
 
@@ -89,7 +101,7 @@ const SignUp = () => {
                     autoComplete="email"
                     required
                     className="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                    placeholder="Email address"
+                    placeholder="Email address  *"
                   />
                 </div>
                 <div>
@@ -104,7 +116,7 @@ const SignUp = () => {
                     type="text"
                     required
                     className="relative block w-full appearance-none rounded-none border border-gray-300 px-3 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                    placeholder="Username"
+                    placeholder="Username  *"
                   />
                 </div>
                 <div>
@@ -120,7 +132,7 @@ const SignUp = () => {
                     autoComplete="current-password"
                     required
                     className="relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                    placeholder="Password"
+                    placeholder="Password  *"
                   />
                 </div>
               </div>
@@ -133,6 +145,13 @@ const SignUp = () => {
                 >
                   {signupButton}
                 </button>
+                <Toaster
+                  toastOptions={{
+                    success: {
+                      duration: 8000,
+                    },
+                  }}
+                />
                 <Link
                   className="flex items-center text-white font-medium hover:text-blue-400 mt-5 text-sm hover:underline underline-offset-4 w-fit"
                   href="/login"
