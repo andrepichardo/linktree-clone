@@ -64,7 +64,7 @@ export default function Home() {
       }
     };
     getUser();
-  }, [router, userId, creatorSlug]);
+  }, [creatorSlug]);
 
   useEffect(() => {
     const getLinks = async () => {
