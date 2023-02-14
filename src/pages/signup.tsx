@@ -22,14 +22,26 @@ const SignUp = () => {
         </div>
       );
       if (email && password && username) {
-        const resp = await supabase.auth.signUp({
-          email: email,
-          password: password,
-        });
-        if (resp.error) throw resp.error;
-        const userId = resp.data.user?.id;
-        if (userId) {
-          await createUser(userId);
+        try {
+          const { data, error } = await supabase
+            .from('users')
+            .select('id, username')
+            .eq('username', username);
+          if (error) throw error;
+          if (data[0].username == username) {
+            toast.error('That username is already in use!');
+          }
+        } catch (error) {
+          const resp = await supabase.auth.signUp({
+            email: email,
+            password: password,
+          });
+          if (resp.error) throw resp.error;
+          const userId = resp.data.user?.id;
+
+          if (userId) {
+            await createUser(userId);
+          }
         }
       } else {
         toast(<span>Please fill all required fields.</span>, {
