@@ -27,7 +27,7 @@ export default function Home() {
   const [uploadButton, setUploadButton] = useState<any>(
     'Upload Profile Picture'
   );
-  const [links, setLinks] = useState<Link[]>();
+  const [links, setLinks] = useState<Link[] | any>();
   const [images, setImages] = useState<ImageListType>([]);
   const [profilePictureUrl, setProfilePictureUrl] = useState<
     string | undefined
@@ -232,20 +232,24 @@ export default function Home() {
             <FiLoader className="animate-spin text-4xl text-white" />
           )}
           {links ? (
-            links?.map((link: Link, index: number) => {
-              return (
-                <div
-                  onClick={(e) => {
-                    e.preventDefault();
-                    window.open(link.url, '_blank');
-                  }}
-                  className="flex flex-col w-full items-center hover:scale-[97%] transition-all rounded-lg shadow-lg bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-semibold px-3 font-mono py-4 cursor-pointer"
-                  key={index}
-                >
-                  <span>{link.title}</span>
-                </div>
-              );
-            })
+            links == 0 ? (
+              <div className="text-white font-mono py-5">No links added.</div>
+            ) : (
+              links?.map((link: Link, index: number) => {
+                return (
+                  <div
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.open(link.url, '_blank');
+                    }}
+                    className="flex flex-col w-full items-center hover:scale-[97%] transition-all rounded-lg shadow-lg bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-semibold px-3 font-mono py-4 cursor-pointer"
+                    key={index}
+                  >
+                    <span>{link.title}</span>
+                  </div>
+                );
+              })
+            )
           ) : (
             <FiLoader className="animate-spin text-emerald-500 text-4xl" />
           )}
