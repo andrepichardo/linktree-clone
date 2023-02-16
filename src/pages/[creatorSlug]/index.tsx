@@ -222,7 +222,7 @@ export default function Home() {
           {profilePictureUrl ? (
             <Image
               priority
-              className="rounded-full bg-white border-2 border-white w-full h-full sm:min-w-[120px] max-w-[120px] min-h-[120px] max-h-[120px] shrink"
+              className="rounded-full bg-white border-2 border-white w-full h-full sm:min-w-[120px] max-w-[120px] min-h-[120px] max-h-[120px] object-cover shrink"
               src={profilePictureUrl}
               width={120}
               height={120}
@@ -233,7 +233,9 @@ export default function Home() {
           )}
           {links ? (
             links == 0 ? (
-              <div className="text-white font-mono py-5">No links added.</div>
+              <div className="text-white font-mono py-5 uppercase text-center border-2 border-white rounded-lg w-full">
+                No links available.
+              </div>
             ) : (
               links?.map((link: Link, index: number) => {
                 return (
