@@ -64,7 +64,8 @@ const SignUp = () => {
         <div className="flex flex-col gap-2">
           <span>Your account has been successfully created!</span>
           <b>
-            Check your email inbox and follow the link to verify your account.
+            Please check your email inbox and follow the link to verify your
+            account.
           </b>
         </div>
       );
@@ -176,7 +177,7 @@ const SignUp = () => {
             </form>
           </div>
         </div>
-        <span className=" text-white w-full flex justify-center text-sm absolute bottom-5 mt-8 font-semibold font-mono">
+        <span className="text-white w-full flex justify-center text-sm absolute bottom-5 mt-8 font-semibold font-mono">
           © André Pichardo 2023
         </span>
       </div>
