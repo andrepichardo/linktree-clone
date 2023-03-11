@@ -1,14 +1,17 @@
 import Head from 'next/head';
 import supabase from 'utils/supabaseClient';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
+  FiEdit,
   FiLoader,
   FiLogOut,
   FiSearch,
+  FiShare2,
   FiTrash,
   FiUpload,
 } from 'react-icons/fi';
+import { MdOutlineAddPhotoAlternate } from 'react-icons/md';
 import { FaExclamationCircle, FaSpinner } from 'react-icons/fa';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/router';
@@ -23,8 +26,11 @@ type Link = {
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [userId, setUserId] = useState<string | undefined>();
   const [title, setTitle] = useState<string | undefined>();
+  const [copied, setCopied] = useState(false);
+  const [mobileSearch, setMobileSearch] = useState(false);
   const [url, setUrl] = useState<string | undefined>();
   const [addButton, setAddButton] = useState<any>('Add new Link');
   const [signOutButton, setSignOutButton] = useState<any>(
@@ -44,6 +50,29 @@ export default function Home() {
 
   const onChange = (imageList: ImageListType) => {
     setImages(imageList);
+  };
+
+  const handleMobileSearch = () => {
+    setMobileSearch(!mobileSearch);
+    if (inputRef.current != null) {
+      inputRef.current.focus();
+    }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard
+      .writeText(`https://link-space.vercel.app/${creatorSlug}`)
+      .then(
+        () => {
+          setCopied(true);
+          setTimeout(() => {
+            setCopied(false);
+          }, 2000);
+        },
+        (err) => {
+          alert(err.mesage);
+        }
+      );
   };
 
   useEffect(() => {
@@ -197,6 +226,14 @@ export default function Home() {
     }
   }
 
+  if (typeof window !== 'undefined') {
+    if (mobileSearch === true) {
+      document.documentElement.style.overflowY = 'hidden';
+    } else {
+      document.documentElement.style.overflowY = 'auto';
+    }
+  }
+
   return (
     <>
       <Head>
@@ -205,10 +242,10 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex flex-col gap-2 w-full min-h-screen justify-center items-center bg-gradient-to-b from-sky-500 to-sky-800 py-4 ">
+      <main className="flex flex-col gap-12 md:gap-14 w-full min-h-screen justify-start items-center bg-gradient-to-b from-sky-500 to-sky-800 py-4 ">
         <Link
           href="/"
-          className="flex mb-6 justify-center items-end text-2xl italic text-sky-900 font-mono font-bold"
+          className="flex justify-center items-end text-2xl italic text-sky-900 font-mono font-bold"
         >
           <h1>Link</h1>
           <Image className="w-9 pl-0.5 translate-y-1" src={Logo} alt="" />
@@ -221,163 +258,241 @@ export default function Home() {
             className="rounded-full focus:ring-2 ring-2 ring-transparent transition-all duration-300 focus:ring-emerald-500 h-8 md:w-48 lg:w-60 px-3 placeholder:text-xs text-sm outline-none text-emerald-600 font-semibold"
             type="text"
           />
-          <button className="rounded-full transition-all active:scale-90 active:bg-white active:border-emerald-500 active:text-emerald-500 border border-transparent -right-1 absolute h-full w-9 flex items-center justify-center hover:bg-emerald-400 bg-emerald-500 text-white">
+          <button
+            title="Search by username"
+            className="rounded-full transition-all active:scale-90 active:bg-white active:border-emerald-500 active:text-emerald-500 border border-transparent -right-1 absolute h-full w-9 flex items-center justify-center hover:bg-emerald-400 bg-emerald-500 text-white"
+          >
             <FiSearch size={18} />
           </button>
         </div>
 
-        <button className="rounded-full md:hidden transition-all active:scale-95 active:bg-white active:border-emerald-500 active:text-emerald-500 border border-transparent left-5 top-5 absolute h-11 w-11 flex items-center justify-center hover:bg-emerald-400 bg-emerald-500 text-white">
+        <button
+          title="Search by username"
+          onClick={handleMobileSearch}
+          className="rounded-full md:hidden transition-all active:scale-95 active:bg-white active:border-emerald-500 active:text-emerald-500 border border-transparent left-5 top-5 absolute h-11 w-11 flex items-center justify-center hover:bg-emerald-400 bg-emerald-500 text-white"
+        >
           <FiSearch size={20} />
         </button>
+        <div
+          className={
+            mobileSearch
+              ? 'w-11/12 max-w-lg left-0 px-3 top-5 right-0 fixed mx-auto z-50 transition-all duration-500'
+              : 'w-11/12 max-w-lg left-0 px-3 top-[-100%] right-0 fixed mx-auto z-50 transition-all duration-500'
+          }
+        >
+          <input
+            ref={inputRef}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            placeholder="Search for a username..."
+            className="px-4 py-4 rounded-full outline-none w-full"
+            type="text"
+          />
+          <FiSearch
+            title="Search by username"
+            className="absolute bottom-0 top-0 my-auto right-8 text-gray-400 hover:text-gray-300 transition-all rounded-full cursor-pointer"
+            size={20}
+          />
+        </div>
+        {mobileSearch ? (
+          <div
+            onClick={() => setMobileSearch(!mobileSearch)}
+            className="w-full h-full min-h-screen top-0 left-0 z-10 bg-black/60 fixed transition-all duration-500"
+          />
+        ) : (
+          <div className="w-full h-full min-h-screen top-0 left-0 z-10 invisible bg-transparent fixed transition-all duration-500" />
+        )}
 
         {isAuthenticated && (
           <button
+            title="Sign out"
             onClick={SignOut}
             className="bg-red-500 hover:bg-red-500/80 transition-all p-2 flex justify-center items-center w-11 h-11 md:w-12 md:h-12 rounded-full absolute top-5 right-5 active:scale-95 text-white font-mono"
           >
             {signOutButton}
           </button>
         )}
-        <div className="flex flex-col items-center gap-4 max-w-sm w-full px-4">
-          <Toaster />
-          {profilePictureUrl ? (
-            <Image
-              priority
-              className="rounded-full bg-white border-2 border-white w-full h-full sm:min-w-[120px] max-w-[120px] min-h-[120px] max-h-[120px] object-cover shrink"
-              src={profilePictureUrl}
-              width={120}
-              height={120}
-              alt=""
-            />
-          ) : (
-            <FiLoader className="animate-spin text-4xl text-white" />
-          )}
-          {links ? (
-            links == 0 ? (
-              <div className="text-white font-mono py-5 uppercase text-center border-2 border-white rounded-lg w-full">
-                No links available.
-              </div>
-            ) : (
-              links?.map((link: Link, index: number) => {
-                return (
-                  <div
-                    onClick={(e) => {
-                      e.preventDefault();
-                      window.open(link.url, '_blank');
-                    }}
-                    className="flex flex-col w-full items-center hover:scale-[97%] transition-all rounded-lg shadow-lg bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-semibold px-3 font-mono py-4 cursor-pointer"
-                    key={index}
-                  >
-                    <span>{link.title}</span>
+        <div className="flex flex-col w-full items-center gap-10">
+          <div className="flex flex-col items-center gap-4 max-w-sm w-full h-full px-4">
+            <Toaster />
+            <div className="flex flex-col w-full justify-center items-center gap-2">
+              {profilePictureUrl ? (
+                <div className="relative w-full flex justify-center">
+                  <Image
+                    priority
+                    className="rounded-full bg-white border-2 border-white w-full h-full sm:min-w-[120px] max-w-[120px] min-h-[120px] max-h-[120px] object-cover shrink"
+                    src={profilePictureUrl}
+                    width={120}
+                    height={120}
+                    alt=""
+                  />
+                  <div className="absolute flex items-center top-0 bottom-0 right-[4.5rem]">
+                    {copied ? (
+                      <span className="flex text-white items-center font-semibold translate-x-14">
+                        <FiShare2 className="text-white rounded-lg transition-all p-1 w-8 h-8 cursor-pointer" />
+                        Copied!
+                      </span>
+                    ) : (
+                      <FiShare2
+                        title="Copy user's URL"
+                        onClick={copyToClipboard}
+                        className="text-white hover:bg-gray-50/10 rounded-lg transition-all p-1 w-8 h-8 cursor-pointer"
+                      />
+                    )}
                   </div>
-                );
-              })
-            )
-          ) : (
-            <FiLoader className="animate-spin text-emerald-500 text-4xl" />
+                </div>
+              ) : (
+                <FiLoader className="animate-spin text-4xl text-white" />
+              )}
+              {creatorSlug ? (
+                <div className="text-white font-semibold italic text-lg">
+                  @{creatorSlug}
+                </div>
+              ) : (
+                <FiLoader className="animate-spin text-white" size={20} />
+              )}
+            </div>
+            {links ? (
+              links == 0 ? (
+                <div className="text-white font-mono py-5 uppercase text-center border-2 border-white rounded-lg w-full">
+                  No links available.
+                </div>
+              ) : (
+                links?.map((link: Link, index: number) => {
+                  return (
+                    <div
+                      onClick={(e) => {
+                        e.preventDefault();
+                        window.open(link.url, '_blank');
+                      }}
+                      className="flex flex-col w-full items-center hover:scale-[97%] transition-all rounded-lg shadow-lg bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-semibold px-3 font-mono py-4 cursor-pointer"
+                      key={index}
+                    >
+                      <span>{link.title}</span>
+                    </div>
+                  );
+                })
+              )
+            ) : (
+              <FiLoader className="animate-spin text-emerald-500 text-4xl" />
+            )}
+          </div>
+          {isAuthenticated && (
+            <div className="flex max-w-sm w-full flex-col gap-2 px-4">
+              <div className="flex flex-col mb-4">
+                <h3 className="text-white uppercase flex justify-between items-center gap-1 font-semibold text-lg">
+                  Add a new link <FiEdit />
+                </h3>
+                <span className="h-0.5 bg-white rounded-full" />
+              </div>
+              <div>
+                <label className="text-white font-semibold" htmlFor="title">
+                  Link Title:
+                </label>
+                <input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  id="title"
+                  name="title"
+                  type="text"
+                  className=" w-full border placeholder:text-sm placeholder:italic border-gray-300 px-3 py-3 rounded text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-sm sm:text-base"
+                  placeholder="Link Title"
+                />
+              </div>
+              <div>
+                <label className="text-white font-semibold" htmlFor="url">
+                  URL:
+                </label>
+                <input
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  id="url"
+                  name="url"
+                  type="url"
+                  className=" w-full border placeholder:text-sm placeholder:italic border-gray-300 px-3 py-3 rounded text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-sm sm:text-base"
+                  placeholder="https://example.com/"
+                />
+              </div>
+              <button
+                onClick={addNewLink}
+                className="my-5 bg-emerald-500 rounded-lg shadow-lg text-white font-semibold px-5 py-1.5 hover:bg-emerald-500/80 active:scale-95 transition-all self-center"
+              >
+                {addButton}
+              </button>
+              <div className="flex flex-col mb-4">
+                <h3 className="text-white uppercase flex justify-between items-center gap-1 font-semibold text-lg">
+                  Update profile picture{' '}
+                  <MdOutlineAddPhotoAlternate size={24} />
+                </h3>
+                <span className="h-0.5 bg-white rounded-full" />
+              </div>
+              <ImageUploading
+                multiple
+                value={images}
+                onChange={onChange}
+                maxNumber={1}
+                dataURLKey="data_url"
+              >
+                {({
+                  imageList,
+                  onImageUpload,
+                  onImageUpdate,
+                  onImageRemove,
+                  isDragging,
+                  dragProps,
+                }) => (
+                  // write your building UI
+                  <div className="flex flex-col items-center justify-center bg-gray-200 border-2 border-dashed border-gray-400 rounded-md">
+                    <button
+                      className="text-gray-500 italic font-semibold rounded-md py-4 px-4"
+                      style={isDragging ? { color: 'red' } : undefined}
+                      onClick={onImageUpload}
+                      {...dragProps}
+                    >
+                      Click to upload new image or drag and drop a new image
+                      here
+                    </button>
+                    {imageList.map((image, index) => (
+                      <div
+                        key={index}
+                        className="flex flex-col items-center gap-3"
+                      >
+                        <Image
+                          className="rounded-lg min-w-[120px] max-w-[120px] min-h-[120px] max-h-[120px]"
+                          src={images[0]['data_url']}
+                          alt=""
+                          width={120}
+                          height={120}
+                        />
+                        <div className="flex gap-3 mb-3">
+                          <button
+                            className="hover:bg-gray-300 p-2 rounded-md"
+                            onClick={() => onImageUpdate(index)}
+                          >
+                            <FiUpload className="text-blue-500 w-5 h-5" />
+                          </button>
+                          <button
+                            className="hover:bg-gray-300 p-2 rounded-md"
+                            onClick={() => onImageRemove(index)}
+                          >
+                            <FiTrash className="text-red-500 w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ImageUploading>
+              <button
+                onClick={uploadProfilePicture}
+                className="mt-5 bg-emerald-500 rounded-lg shadow-lg text-white font-semibold px-5 py-1.5 hover:bg-emerald-500/80 active:scale-95 transition-all self-center"
+              >
+                {uploadButton}
+              </button>
+            </div>
           )}
         </div>
-
-        {isAuthenticated && (
-          <div className="flex max-w-sm w-full flex-col gap-2 mt-4 px-4">
-            <div>
-              <label className="text-white font-semibold" htmlFor="title">
-                Link Title:
-              </label>
-              <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                id="title"
-                name="title"
-                type="text"
-                className=" w-full border placeholder:text-sm placeholder:italic border-gray-300 px-3 py-3 rounded text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-sm sm:text-base"
-                placeholder="Link Title"
-              />
-            </div>
-            <div>
-              <label className="text-white font-semibold" htmlFor="url">
-                URL:
-              </label>
-              <input
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                id="url"
-                name="url"
-                type="url"
-                className=" w-full border placeholder:text-sm placeholder:italic border-gray-300 px-3 py-3 rounded text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-sm sm:text-base"
-                placeholder="https://example.com/"
-              />
-            </div>
-            <button
-              onClick={addNewLink}
-              className="my-5 bg-emerald-500 rounded-lg shadow-lg text-white font-semibold px-5 py-1.5 hover:bg-emerald-500/80 active:scale-95 transition-all self-center"
-            >
-              {addButton}
-            </button>
-            <ImageUploading
-              multiple
-              value={images}
-              onChange={onChange}
-              maxNumber={1}
-              dataURLKey="data_url"
-            >
-              {({
-                imageList,
-                onImageUpload,
-                onImageUpdate,
-                onImageRemove,
-                isDragging,
-                dragProps,
-              }) => (
-                // write your building UI
-                <div className="flex flex-col items-center justify-center bg-gray-200 border-2 border-dashed border-gray-400 rounded-md">
-                  <button
-                    className="text-gray-500 italic font-semibold rounded-md py-4 px-4"
-                    style={isDragging ? { color: 'red' } : undefined}
-                    onClick={onImageUpload}
-                    {...dragProps}
-                  >
-                    Click to upload new image or drag and drop a new image here
-                  </button>
-                  {imageList.map((image, index) => (
-                    <div
-                      key={index}
-                      className="flex flex-col items-center gap-3"
-                    >
-                      <Image
-                        className="rounded-lg min-w-[120px] max-w-[120px] min-h-[120px] max-h-[120px]"
-                        src={images[0]['data_url']}
-                        alt=""
-                        width={120}
-                        height={120}
-                      />
-                      <div className="flex gap-3 mb-3">
-                        <button
-                          className="hover:bg-gray-300 p-2 rounded-md"
-                          onClick={() => onImageUpdate(index)}
-                        >
-                          <FiUpload className="text-blue-500 w-5 h-5" />
-                        </button>
-                        <button
-                          className="hover:bg-gray-300 p-2 rounded-md"
-                          onClick={() => onImageRemove(index)}
-                        >
-                          <FiTrash className="text-red-500 w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </ImageUploading>
-            <button
-              onClick={uploadProfilePicture}
-              className="mt-5 bg-emerald-500 rounded-lg shadow-lg text-white font-semibold px-5 py-1.5 hover:bg-emerald-500/80 active:scale-95 transition-all self-center"
-            >
-              {uploadButton}
-            </button>
-          </div>
-        )}
       </main>
     </>
   );
