@@ -221,12 +221,12 @@ export default function Home() {
             className="rounded-full focus:ring-2 ring-2 ring-transparent transition-all duration-300 focus:ring-emerald-500 h-8 md:w-48 lg:w-60 px-3 placeholder:text-xs text-sm outline-none text-emerald-600 font-semibold"
             type="text"
           />
-          <button className="rounded-full transition-all active:scale-90 active:bg-white active:border-emerald-500 active:text-emerald-500 border border-transparent -right-1 absolute h-full w-9 flex items-center justify-center bg-emerald-500 text-white">
+          <button className="rounded-full transition-all active:scale-90 active:bg-white active:border-emerald-500 active:text-emerald-500 border border-transparent -right-1 absolute h-full w-9 flex items-center justify-center hover:bg-emerald-400 bg-emerald-500 text-white">
             <FiSearch size={18} />
           </button>
         </div>
 
-        <button className="rounded-full md:hidden transition-all active:scale-95 active:bg-white active:border-emerald-500 active:text-emerald-500 border border-transparent left-5 top-5 absolute h-11 w-11 flex items-center justify-center bg-emerald-500 text-white">
+        <button className="rounded-full md:hidden transition-all active:scale-95 active:bg-white active:border-emerald-500 active:text-emerald-500 border border-transparent left-5 top-5 absolute h-11 w-11 flex items-center justify-center hover:bg-emerald-400 bg-emerald-500 text-white">
           <FiSearch size={20} />
         </button>
 
