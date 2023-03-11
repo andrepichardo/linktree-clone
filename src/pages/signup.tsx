@@ -64,8 +64,7 @@ const SignUp = () => {
         <div className="flex flex-col gap-2">
           <span>Your account has been successfully created!</span>
           <b>
-            Please check your email inbox and follow the link to verify your
-            account.
+            Check your email inbox and follow the link to verify your account.
           </b>
         </div>
       );
