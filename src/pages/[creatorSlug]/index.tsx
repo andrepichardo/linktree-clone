@@ -2,7 +2,13 @@ import Head from 'next/head';
 import supabase from 'utils/supabaseClient';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
 import { useEffect, useState } from 'react';
-import { FiLoader, FiLogOut, FiTrash, FiUpload } from 'react-icons/fi';
+import {
+  FiLoader,
+  FiLogOut,
+  FiSearch,
+  FiTrash,
+  FiUpload,
+} from 'react-icons/fi';
 import { FaExclamationCircle, FaSpinner } from 'react-icons/fa';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/router';
@@ -199,15 +205,30 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex flex-col gap-2 w-full min-h-screen justify-center items-center bg-gradient-to-b from-sky-500 to-sky-800 py-4 md:py-8">
+      <main className="flex flex-col gap-2 w-full min-h-screen justify-center items-center bg-gradient-to-b from-sky-500 to-sky-800 py-4 ">
         <Link
           href="/"
-          className="flex md:absolute mb-6 top-5 left-5 justify-center items-end text-2xl italic text-sky-900 font-mono font-bold"
+          className="flex mb-6 justify-center items-end text-2xl italic text-sky-900 font-mono font-bold"
         >
           <h1>Link</h1>
           <Image className="w-9 pl-0.5 translate-y-1" src={Logo} alt="" />
           <h1>pace</h1>
         </Link>
+
+        <div className="hidden md:flex items-center absolute h-9 left-5 top-5 ">
+          <input
+            placeholder="Search for a username..."
+            className="rounded-full focus:ring-2 ring-2 ring-transparent transition-all duration-300 focus:ring-emerald-500 h-8 md:w-48 lg:w-60 px-3 placeholder:text-xs text-sm outline-none text-emerald-600 font-semibold"
+            type="text"
+          />
+          <button className="rounded-full transition-all active:scale-90 active:bg-white active:border-emerald-500 active:text-emerald-500 border border-transparent -right-1 absolute h-full w-9 flex items-center justify-center bg-emerald-500 text-white">
+            <FiSearch size={18} />
+          </button>
+        </div>
+
+        <button className="rounded-full md:hidden transition-all active:scale-95 active:bg-white active:border-emerald-500 active:text-emerald-500 border border-transparent left-5 top-5 absolute h-11 w-11 flex items-center justify-center bg-emerald-500 text-white">
+          <FiSearch size={20} />
+        </button>
 
         {isAuthenticated && (
           <button
