@@ -19,6 +19,7 @@ import Logo from '../../../public/Logo.png';
 import samplePicture from '../../../public/images/sampleProfilePic.png';
 import Image from 'next/image';
 import Link from 'next/link';
+import { RWebShare } from 'react-web-share';
 type Link = {
   title: string;
   url: string;
@@ -57,22 +58,6 @@ export default function Home() {
     if (inputRef.current != null) {
       inputRef.current.focus();
     }
-  };
-
-  const copyToClipboard = () => {
-    navigator.clipboard
-      .writeText(`https://link-space.vercel.app/${creatorSlug}`)
-      .then(
-        () => {
-          setCopied(true);
-          setTimeout(() => {
-            setCopied(false);
-          }, 2000);
-        },
-        (err) => {
-          alert(err.mesage);
-        }
-      );
   };
 
   useEffect(() => {
@@ -139,6 +124,14 @@ export default function Home() {
       setUserId(userId);
     }
   }, [creatorSlug, userId, router]);
+
+  const origin =
+    typeof window !== 'undefined' && window.location.origin
+      ? window.location.origin
+      : '';
+
+  const URL = `${origin}${creatorSlug}`;
+  console.log(URL);
 
   const addNewLink = async () => {
     try {
@@ -328,18 +321,18 @@ export default function Home() {
                     alt=""
                   />
                   <div className="absolute flex items-center top-0 bottom-0 right-[4.5rem]">
-                    {copied ? (
-                      <span className="flex text-white items-center font-semibold translate-x-14">
-                        <FiShare2 className="text-white rounded-lg transition-all p-1 w-8 h-8 cursor-pointer" />
-                        Copied!
-                      </span>
-                    ) : (
+                    <RWebShare
+                      data={{
+                        text: `Check out ${creatorSlug}'s profile on LinkSpace:`,
+                        url: `${window.location}`,
+                        title: `${creatorSlug}`,
+                      }}
+                    >
                       <FiShare2
-                        title="Copy user's URL"
-                        onClick={copyToClipboard}
+                        title="Share user's profile"
                         className="text-white hover:bg-gray-50/10 rounded-lg transition-all p-1 w-8 h-8 cursor-pointer"
                       />
-                    )}
+                    </RWebShare>
                   </div>
                 </div>
               ) : (
