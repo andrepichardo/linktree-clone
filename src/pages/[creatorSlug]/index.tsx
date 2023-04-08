@@ -30,7 +30,7 @@ export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [userId, setUserId] = useState<string | undefined>();
   const [title, setTitle] = useState<string | undefined>();
-  const [copied, setCopied] = useState(false);
+  const [search, setSearch] = useState('');
   const [mobileSearch, setMobileSearch] = useState(false);
   const [url, setUrl] = useState<string | undefined>();
   const [addButton, setAddButton] = useState<any>('Add new Link');
@@ -51,13 +51,6 @@ export default function Home() {
 
   const onChange = (imageList: ImageListType) => {
     setImages(imageList);
-  };
-
-  const handleMobileSearch = () => {
-    setMobileSearch(!mobileSearch);
-    if (inputRef.current != null) {
-      inputRef.current.focus();
-    }
   };
 
   useEffect(() => {
@@ -124,14 +117,6 @@ export default function Home() {
       setUserId(userId);
     }
   }, [creatorSlug, userId, router]);
-
-  const origin =
-    typeof window !== 'undefined' && window.location.origin
-      ? window.location.origin
-      : '';
-
-  const URL = `${origin}${creatorSlug}`;
-  console.log(URL);
 
   const addNewLink = async () => {
     try {
@@ -227,6 +212,32 @@ export default function Home() {
     }
   }
 
+  const handleShowMobileSearch = () => {
+    setMobileSearch(!mobileSearch);
+    if (inputRef.current != null) {
+      inputRef.current.focus();
+    }
+  };
+
+  const handleSearch = () => {
+    if (search.length > 0) {
+      router.push(`/${search}`);
+    }
+    if (mobileSearch == true && search.length > 0) {
+      setMobileSearch(false);
+    }
+    setSearch('');
+  };
+
+  const handleKeyDown = (event: any) => {
+    if (event.key === 'Enter') {
+      handleSearch();
+      if (mobileSearch == true && search.length > 0) {
+        setMobileSearch(false);
+      }
+    }
+  };
+
   return (
     <>
       <Head>
@@ -247,11 +258,18 @@ export default function Home() {
 
         <div className="hidden md:flex items-center absolute h-9 left-5 top-5 ">
           <input
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+            }}
+            onKeyDown={handleKeyDown}
             placeholder="Search for a username..."
             className="rounded-full focus:ring-2 ring-2 ring-transparent transition-all duration-300 focus:ring-emerald-500 h-8 md:w-48 lg:w-60 px-3 placeholder:text-xs text-sm outline-none text-emerald-600 font-semibold"
             type="text"
           />
           <button
+            type="submit"
+            onClick={handleSearch}
             title="Search by username"
             className="rounded-full transition-all active:scale-90 active:bg-white active:border-emerald-500 active:text-emerald-500 border border-transparent -right-1 absolute h-full w-9 flex items-center justify-center hover:bg-emerald-400 bg-emerald-500 text-white"
           >
@@ -261,7 +279,7 @@ export default function Home() {
 
         <button
           title="Search by username"
-          onClick={handleMobileSearch}
+          onClick={handleShowMobileSearch}
           className="rounded-full md:hidden transition-all active:scale-95 active:bg-white active:border-emerald-500 active:text-emerald-500 border border-transparent left-5 top-5 absolute h-11 w-11 flex items-center justify-center hover:bg-emerald-400 bg-emerald-500 text-white"
         >
           <FiSearch size={20} />
@@ -278,11 +296,17 @@ export default function Home() {
             onClick={(e) => {
               e.stopPropagation();
             }}
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+            }}
+            onKeyDown={handleKeyDown}
             placeholder="Search for a username..."
             className="px-4 py-4 rounded-full outline-none w-full"
             type="text"
           />
           <FiSearch
+            onClick={handleSearch}
             title="Search by username"
             className="absolute bottom-0 top-0 my-auto right-8 text-gray-400 hover:text-gray-300 transition-all rounded-full cursor-pointer"
             size={20}
