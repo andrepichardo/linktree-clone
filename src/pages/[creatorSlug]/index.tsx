@@ -265,7 +265,7 @@ export default function Home() {
             onKeyDown={handleKeyDown}
             placeholder="Search for a username..."
             className="rounded-full focus:ring-2 ring-2 ring-transparent transition-all duration-300 focus:ring-emerald-500 h-8 md:w-48 lg:w-60 px-3 placeholder:text-xs text-sm outline-none text-emerald-600 font-semibold"
-            type="text"
+            type="search"
           />
           <button
             type="submit"
@@ -303,7 +303,7 @@ export default function Home() {
             onKeyDown={handleKeyDown}
             placeholder="Search for a username..."
             className="px-4 py-4 rounded-full outline-none w-full"
-            type="text"
+            type="search"
           />
           <FiSearch
             onClick={handleSearch}
