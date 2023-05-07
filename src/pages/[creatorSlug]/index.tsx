@@ -23,6 +23,7 @@ import { RWebShare } from 'react-web-share';
 type Link = {
   title: string;
   url: string;
+  id: string;
 };
 
 export default function Home() {
@@ -30,9 +31,9 @@ export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [userId, setUserId] = useState<string | undefined>();
   const [title, setTitle] = useState<string | undefined>();
+  const [url, setUrl] = useState<string | undefined>();
   const [search, setSearch] = useState('');
   const [mobileSearch, setMobileSearch] = useState(false);
-  const [url, setUrl] = useState<string | undefined>();
   const [addButton, setAddButton] = useState<any>('Add new Link');
   const [signOutButton, setSignOutButton] = useState<any>(
     <FiLogOut size={20} />
@@ -84,7 +85,7 @@ export default function Home() {
       try {
         const { data, error } = await supabase
           .from('links')
-          .select('title, url')
+          .select('title, url, id')
           .eq('user_id', userId);
         if (error) throw error;
         setLinks(data);
@@ -150,6 +151,23 @@ export default function Home() {
       toast.error('Error adding new link! Try again.');
     }
     setAddButton('Add new Link');
+  };
+
+  const deleteLink = async (e: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('links')
+        .delete()
+        .eq('id', e.currentTarget.id)
+        .select();
+      if (error) throw error;
+      if (links) {
+        setLinks(links.filter((link: any) => link.id != data[0].id));
+      }
+      toast.success('Link deleted successfully!');
+    } catch (error) {
+      toast.error('Error deleting link! Try again.');
+    }
   };
 
   const uploadProfilePicture = async () => {
@@ -246,17 +264,17 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex flex-col gap-12 md:gap-14 w-full min-h-screen justify-start items-center bg-gradient-to-b from-sky-500 to-sky-800 py-4 ">
+      <main className="flex flex-col items-center justify-start w-full min-h-screen gap-12 py-4 md:gap-14 bg-gradient-to-b from-sky-500 to-sky-800 ">
         <Link
           href="/"
-          className="flex justify-center items-end text-2xl italic text-sky-900 font-mono font-bold"
+          className="flex items-end justify-center font-mono text-2xl italic font-bold text-sky-900"
         >
           <h1>Link</h1>
           <Image className="w-9 pl-0.5 translate-y-1" src={Logo} alt="" />
           <h1>pace</h1>
         </Link>
 
-        <div className="hidden md:flex items-center absolute h-9 left-5 top-5 ">
+        <div className="absolute items-center hidden md:flex h-9 left-5 top-5 ">
           <input
             value={search}
             onChange={(e) => {
@@ -264,14 +282,14 @@ export default function Home() {
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search for a username..."
-            className="rounded-full focus:ring-2 ring-2 ring-transparent transition-all duration-300 focus:ring-emerald-500 h-8 md:w-48 lg:w-60 pl-3 pr-10 placeholder:text-xs text-sm outline-none text-emerald-600 font-semibold"
+            className="h-8 pl-3 pr-10 text-sm font-semibold transition-all duration-300 rounded-full outline-none focus:ring-2 ring-2 ring-transparent focus:ring-emerald-500 md:w-48 lg:w-60 placeholder:text-xs text-emerald-600"
             type="search"
           />
           <button
             type="submit"
             onClick={handleSearch}
             title="Search by username"
-            className="rounded-full transition-all active:scale-90 active:bg-white active:border-emerald-500 active:text-emerald-500 border border-transparent -right-1 absolute h-full w-9 flex items-center justify-center hover:bg-emerald-400 bg-emerald-500 text-white"
+            className="absolute flex items-center justify-center h-full text-white transition-all border border-transparent rounded-full active:scale-90 active:bg-white active:border-emerald-500 active:text-emerald-500 -right-1 w-9 hover:bg-emerald-400 bg-emerald-500"
           >
             <FiSearch size={18} />
           </button>
@@ -280,7 +298,7 @@ export default function Home() {
         <button
           title="Search by username"
           onClick={handleShowMobileSearch}
-          className="rounded-full md:hidden transition-all active:scale-95 active:bg-white active:border-emerald-500 active:text-emerald-500 border border-transparent left-5 top-5 absolute h-11 w-11 flex items-center justify-center hover:bg-emerald-400 bg-emerald-500 text-white"
+          className="absolute flex items-center justify-center text-white transition-all border border-transparent rounded-full md:hidden active:scale-95 active:bg-white active:border-emerald-500 active:text-emerald-500 left-5 top-5 h-11 w-11 hover:bg-emerald-400 bg-emerald-500"
         >
           <FiSearch size={20} />
         </button>
@@ -302,40 +320,40 @@ export default function Home() {
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search for a username..."
-            className="pl-4 pr-14 py-4 rounded-full outline-none w-full"
+            className="w-full py-4 pl-4 rounded-full outline-none pr-14"
             type="search"
           />
           <FiSearch
             onClick={handleSearch}
             title="Search by username"
-            className="absolute bottom-0 top-0 my-auto right-8 text-gray-400 hover:text-gray-300 transition-all rounded-full cursor-pointer"
+            className="absolute top-0 bottom-0 my-auto text-gray-400 transition-all rounded-full cursor-pointer right-8 hover:text-gray-300"
             size={20}
           />
         </div>
         {mobileSearch ? (
           <div
             onClick={() => setMobileSearch(!mobileSearch)}
-            className="w-full h-full min-h-screen top-0 left-0 z-10 bg-black/60 fixed transition-all duration-500"
+            className="fixed top-0 left-0 z-10 w-full h-full min-h-screen transition-all duration-500 bg-black/60"
           />
         ) : (
-          <div className="w-full h-full min-h-screen top-0 left-0 z-10 invisible bg-transparent fixed transition-all duration-500" />
+          <div className="fixed top-0 left-0 z-10 invisible w-full h-full min-h-screen transition-all duration-500 bg-transparent" />
         )}
 
         {isAuthenticated && (
           <button
             title="Sign out"
             onClick={SignOut}
-            className="bg-red-500 hover:bg-red-500/80 transition-all p-2 flex justify-center items-center w-11 h-11 md:w-12 md:h-12 rounded-full absolute top-5 right-5 active:scale-95 text-white font-mono"
+            className="absolute flex items-center justify-center p-2 font-mono text-white transition-all bg-red-500 rounded-full hover:bg-red-500/80 w-11 h-11 md:w-12 md:h-12 top-5 right-5 active:scale-95"
           >
             {signOutButton}
           </button>
         )}
-        <div className="flex flex-col w-full items-center gap-10">
-          <div className="flex flex-col items-center gap-4 max-w-sm w-full h-full px-4">
+        <div className="flex flex-col items-center w-full gap-10">
+          <div className="flex flex-col items-center w-full h-full max-w-sm gap-4 px-4">
             <Toaster />
-            <div className="flex flex-col w-full justify-center items-center gap-2">
+            <div className="flex flex-col items-center justify-center w-full gap-2">
               {profilePictureUrl ? (
-                <div className="relative w-full flex justify-center">
+                <div className="relative flex justify-center w-full">
                   <Image
                     priority
                     className="rounded-full bg-white border-2 border-white w-full h-full sm:min-w-[120px] max-w-[120px] min-h-[120px] max-h-[120px] object-cover shrink"
@@ -354,57 +372,70 @@ export default function Home() {
                     >
                       <FiShare2
                         title="Share user's profile"
-                        className="text-white hover:bg-gray-50/10 rounded-lg transition-all p-1 w-8 h-8 cursor-pointer"
+                        className="w-8 h-8 p-1 text-white transition-all rounded-lg cursor-pointer hover:bg-gray-50/10"
                       />
                     </RWebShare>
                   </div>
                 </div>
               ) : (
-                <FiLoader className="animate-spin text-4xl text-white" />
+                <FiLoader className="text-4xl text-white animate-spin" />
               )}
               {creatorSlug ? (
-                <div className="text-white font-semibold italic text-lg">
+                <div className="text-lg italic font-semibold text-white">
                   @{creatorSlug}
                 </div>
               ) : (
-                <FiLoader className="animate-spin text-white" size={20} />
+                <FiLoader className="text-white animate-spin" size={20} />
               )}
             </div>
             {links ? (
               links == 0 ? (
-                <div className="text-white font-mono py-5 uppercase text-center border-2 border-white rounded-lg w-full">
+                <div className="w-full py-5 font-mono text-center text-white uppercase border-2 border-white rounded-lg">
                   No links available.
                 </div>
               ) : (
                 links?.map((link: Link, index: number) => {
                   return (
                     <div
-                      onClick={(e) => {
-                        e.preventDefault();
-                        window.open(link.url, '_blank');
-                      }}
-                      className="flex flex-col w-full items-center hover:scale-[97%] transition-all rounded-lg shadow-lg bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-semibold px-3 font-mono py-4 cursor-pointer"
+                      className="relative flex items-center justify-center w-full"
                       key={index}
                     >
-                      <span>{link.title}</span>
+                      <div
+                        onClick={(e) => {
+                          e.preventDefault();
+                          window.open(link.url, '_blank');
+                        }}
+                        className="relative flex items-center justify-center w-full px-3 py-4 font-mono font-semibold text-white transition-all rounded-lg shadow-lg cursor-pointer hover:bg-gradient-to-br hover:from-emerald-400 hover:to-emerald-600 bg-gradient-to-br from-emerald-500 to-emerald-600"
+                      >
+                        <span>{link.title}</span>
+                      </div>
+                      {isAuthenticated && (
+                        <button
+                          id={link.id}
+                          onClick={deleteLink}
+                          className="absolute text-white -right-8 hover:text-red-300"
+                        >
+                          <FiTrash className="text-xl" />
+                        </button>
+                      )}
                     </div>
                   );
                 })
               )
             ) : (
-              <FiLoader className="animate-spin text-emerald-500 text-4xl" />
+              <FiLoader className="text-4xl animate-spin text-emerald-500" />
             )}
           </div>
           {isAuthenticated && (
-            <div className="flex max-w-sm w-full flex-col gap-2 px-4">
+            <div className="flex flex-col w-full max-w-sm gap-2 px-4">
               <div className="flex flex-col mb-4">
-                <h3 className="text-white uppercase flex justify-between items-center gap-1 font-semibold text-lg">
+                <h3 className="flex items-center justify-between gap-1 text-lg font-semibold text-white uppercase">
                   Add a new link <FiEdit />
                 </h3>
                 <span className="h-0.5 bg-white rounded-full" />
               </div>
               <div>
-                <label className="text-white font-semibold" htmlFor="title">
+                <label className="font-semibold text-white" htmlFor="title">
                   Link Title:
                 </label>
                 <input
@@ -413,12 +444,12 @@ export default function Home() {
                   id="title"
                   name="title"
                   type="text"
-                  className=" w-full border placeholder:text-sm placeholder:italic border-gray-300 px-3 py-3 rounded text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-sm sm:text-base"
+                  className="w-full px-3 py-3 text-sm text-gray-900 placeholder-gray-500 border border-gray-300 rounded placeholder:text-sm placeholder:italic focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-base"
                   placeholder="Link Title"
                 />
               </div>
               <div>
-                <label className="text-white font-semibold" htmlFor="url">
+                <label className="font-semibold text-white" htmlFor="url">
                   URL:
                 </label>
                 <input
@@ -427,7 +458,7 @@ export default function Home() {
                   id="url"
                   name="url"
                   type="url"
-                  className=" w-full border placeholder:text-sm placeholder:italic border-gray-300 px-3 py-3 rounded text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-sm sm:text-base"
+                  className="w-full px-3 py-3 text-sm text-gray-900 placeholder-gray-500 border border-gray-300 rounded placeholder:text-sm placeholder:italic focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-base"
                   placeholder="https://example.com/"
                 />
               </div>
@@ -438,7 +469,7 @@ export default function Home() {
                 {addButton}
               </button>
               <div className="flex flex-col mb-4">
-                <h3 className="text-white uppercase flex justify-between items-center gap-1 font-semibold text-lg">
+                <h3 className="flex items-center justify-between gap-1 text-lg font-semibold text-white uppercase">
                   Update profile picture{' '}
                   <MdOutlineAddPhotoAlternate size={24} />
                 </h3>
@@ -460,9 +491,9 @@ export default function Home() {
                   dragProps,
                 }) => (
                   // write your building UI
-                  <div className="flex flex-col items-center justify-center bg-gray-200 border-2 border-dashed border-gray-400 rounded-md">
+                  <div className="flex flex-col items-center justify-center bg-gray-200 border-2 border-gray-400 border-dashed rounded-md">
                     <button
-                      className="text-gray-500 italic font-semibold rounded-md py-4 px-4"
+                      className="px-4 py-4 italic font-semibold text-gray-500 rounded-md"
                       style={isDragging ? { color: 'red' } : undefined}
                       onClick={onImageUpload}
                       {...dragProps}
@@ -484,16 +515,16 @@ export default function Home() {
                         />
                         <div className="flex gap-3 mb-3">
                           <button
-                            className="hover:bg-gray-300 p-2 rounded-md"
+                            className="p-2 rounded-md hover:bg-gray-300"
                             onClick={() => onImageUpdate(index)}
                           >
-                            <FiUpload className="text-blue-500 w-5 h-5" />
+                            <FiUpload className="w-5 h-5 text-blue-500" />
                           </button>
                           <button
-                            className="hover:bg-gray-300 p-2 rounded-md"
+                            className="p-2 rounded-md hover:bg-gray-300"
                             onClick={() => onImageRemove(index)}
                           >
-                            <FiTrash className="text-red-500 w-5 h-5" />
+                            <FiTrash className="w-5 h-5 text-red-500" />
                           </button>
                         </div>
                       </div>
