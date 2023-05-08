@@ -413,7 +413,7 @@ export default function Home() {
                         <button
                           id={link.id}
                           onClick={deleteLink}
-                          className="absolute text-white -right-8 hover:text-red-300"
+                          className="absolute text-white right-3 md:-right-8 hover:text-red-300"
                         >
                           <FiTrash className="text-xl" />
                         </button>
