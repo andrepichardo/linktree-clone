@@ -32,6 +32,7 @@ export default function Home() {
   const [userId, setUserId] = useState<string | undefined>();
   const [title, setTitle] = useState<string | undefined>();
   const [url, setUrl] = useState<string | undefined>();
+  const [username, setUsername] = useState<any | undefined>();
   const [search, setSearch] = useState('');
   const [mobileSearch, setMobileSearch] = useState(false);
   const [addButton, setAddButton] = useState<any>('Add new Link');
@@ -116,6 +117,7 @@ export default function Home() {
     if (creatorSlug) {
       getUser();
       setUserId(userId);
+      setUsername(creatorSlug);
     }
   }, [creatorSlug, userId, router]);
 
@@ -240,6 +242,9 @@ export default function Home() {
   const handleSearch = () => {
     if (search.length > 0) {
       router.push(`/${search}`);
+      setProfilePictureUrl('');
+      setLinks('');
+      setUsername('');
     }
     if (mobileSearch == true && search.length > 0) {
       setMobileSearch(false);
@@ -380,9 +385,9 @@ export default function Home() {
               ) : (
                 <FiLoader className="text-4xl text-white animate-spin" />
               )}
-              {creatorSlug ? (
+              {username ? (
                 <div className="text-lg italic font-semibold text-white">
-                  @{creatorSlug}
+                  @{username}
                 </div>
               ) : (
                 <FiLoader className="text-white animate-spin" size={20} />
