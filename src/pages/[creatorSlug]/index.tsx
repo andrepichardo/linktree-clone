@@ -189,8 +189,7 @@ export default function Home() {
         </div>
       );
       if (images.length > 0) {
-        const image = images[0];
-        if (image.file && userId) {
+        if (images[0].file && userId) {
           const token = getToken();
           const resp = await fetch('/api/upload', {
             method: 'POST',
@@ -199,8 +198,7 @@ export default function Home() {
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-              imageData: image.data_url,
-              fileName: image.file.name,
+              imageData: images[0].data_url,
             }),
           });
           if (!resp.ok) throw new Error('Upload failed');
