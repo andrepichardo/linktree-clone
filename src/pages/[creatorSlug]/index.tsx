@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import supabase from 'utils/supabaseClient';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
 import { useEffect, useState, useRef } from 'react';
 import {
@@ -25,6 +24,13 @@ type Link = {
   url: string;
   id: string;
 };
+
+function getToken() {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('token') || sessionStorage.getItem('token');
+  }
+  return null;
+}
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -57,25 +63,28 @@ export default function Home() {
 
   useEffect(() => {
     const getUser = async () => {
-      const user = await supabase.auth.getUser();
-      if (user.data.user) {
-        const userId = user.data.user?.id;
+      const token = getToken();
+      if (!token) {
+        setIsAuthenticated(false);
+        return;
+      }
 
-        try {
-          const { data, error } = await supabase
-            .from('users')
-            .select('username')
-            .eq('id', userId)
-            .single();
-          if (error) throw error;
-          const username = data.username;
-
-          if (creatorSlug == username) {
-            setIsAuthenticated(true);
-          } else {
-            setIsAuthenticated(false);
-          }
-        } catch (error) {}
+      try {
+        const resp = await fetch('/api/auth/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!resp.ok) {
+          setIsAuthenticated(false);
+          return;
+        }
+        const data = await resp.json();
+        if (creatorSlug == data.username) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
       }
     };
     getUser();
@@ -84,11 +93,9 @@ export default function Home() {
   useEffect(() => {
     const getLinks = async () => {
       try {
-        const { data, error } = await supabase
-          .from('links')
-          .select('title, url, id')
-          .eq('user_id', userId);
-        if (error) throw error;
+        const resp = await fetch(`/api/links?user_id=${userId}`);
+        if (!resp.ok) throw new Error('Failed to fetch links');
+        const data = await resp.json();
         setLinks(data);
       } catch (error) {}
     };
@@ -100,13 +107,11 @@ export default function Home() {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const { data, error } = await supabase
-          .from('users')
-          .select('id, profile_picture_url')
-          .eq('username', creatorSlug);
-        if (error) throw error;
-        const profile_picture_url = data[0]['profile_picture_url'];
-        const userId = data[0]['id'];
+        const resp = await fetch(`/api/users/${creatorSlug}`);
+        if (!resp.ok) throw new Error('User not found');
+        const data = await resp.json();
+        const profile_picture_url = data.profile_picture_url;
+        const userId = data.id;
         setProfilePictureUrl(profile_picture_url || samplePicture);
         setUserId(userId);
       } catch (error) {
@@ -129,19 +134,21 @@ export default function Home() {
         </div>
       );
       if (title && url && userId) {
-        const { data, error } = await supabase
-          .from('links')
-          .insert({
-            title: title,
-            url: url,
-            user_id: userId,
-          })
-          .select();
-        if (error) throw error;
+        const token = getToken();
+        const resp = await fetch('/api/links', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ title, url }),
+        });
+        if (!resp.ok) throw new Error('Failed to add link');
+        const data = await resp.json();
         setTitle('');
         setUrl('');
         if (links) {
-          setLinks([...links, ...data]);
+          setLinks([...links, data]);
         }
         toast.success('Link added successfully!');
       } else {
@@ -157,14 +164,16 @@ export default function Home() {
 
   const deleteLink = async (e: any) => {
     try {
-      const { data, error } = await supabase
-        .from('links')
-        .delete()
-        .eq('id', e.currentTarget.id)
-        .select();
-      if (error) throw error;
+      const linkId = e.currentTarget.id;
+      const token = getToken();
+      const resp = await fetch(`/api/links/${linkId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!resp.ok) throw new Error('Failed to delete link');
+      const data = await resp.json();
       if (links) {
-        setLinks(links.filter((link: any) => link.id != data[0].id));
+        setLinks(links.filter((link: any) => link.id != data.id));
       }
       toast.success('Link deleted successfully!');
     } catch (error) {
@@ -182,19 +191,21 @@ export default function Home() {
       if (images.length > 0) {
         const image = images[0];
         if (image.file && userId) {
-          const { data, error } = await supabase.storage
-            .from('public')
-            .upload(`${userId}/${image.file.name}`, image.file, {
-              upsert: true,
-            });
-          if (error) throw error;
-          const resp = supabase.storage.from('public').getPublicUrl(data.path);
-          const publicUrl = resp.data.publicUrl;
-          const updateUserResponse = await supabase
-            .from('users')
-            .update({ profile_picture_url: publicUrl })
-            .eq('id', userId);
-          if (updateUserResponse.error) throw error;
+          const token = getToken();
+          const resp = await fetch('/api/upload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              imageData: image.data_url,
+              fileName: image.file.name,
+            }),
+          });
+          if (!resp.ok) throw new Error('Upload failed');
+          const data = await resp.json();
+          const publicUrl = data.url;
           if (profilePictureUrl) {
             setProfilePictureUrl(publicUrl);
           }
@@ -215,8 +226,8 @@ export default function Home() {
     try {
       setSignOutButton(<FaSpinner className="animate-spin" size={20} />);
       if (isAuthenticated) {
-        const resp = await supabase.auth.signOut();
-        if (resp.error) throw resp.error;
+        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
         router.push('/login');
       }
     } catch (error) {

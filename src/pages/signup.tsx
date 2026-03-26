@@ -5,7 +5,6 @@ import { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { FaExclamationCircle, FaSpinner } from 'react-icons/fa';
 import { FiChevronLeft } from 'react-icons/fi';
-import supabase from 'utils/supabaseClient';
 import Logo from '../../public/Logo.png';
 
 const SignUp = () => {
@@ -22,58 +21,32 @@ const SignUp = () => {
         </div>
       );
       if (email && password && username) {
-        try {
-          const { data, error } = await supabase
-            .from('users')
-            .select('id, username')
-            .eq('username', username);
-          if (error) throw error;
-          if (data[0].username == username) {
-            toast.error('That username is already in use!');
-          }
-        } catch (error) {
-          const resp = await supabase.auth.signUp({
-            email: email,
-            password: password,
-          });
-          if (resp.error) throw resp.error;
-          const userId = resp.data.user?.id;
+        const resp = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, username }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error);
 
-          if (userId) {
-            await createUser(userId);
-          }
-        }
+        toast.success(
+          <div className="flex flex-col gap-2">
+            <span>Your account has been successfully created!</span>
+            <b>You can now sign in with your credentials.</b>
+          </div>
+        );
+        setEmail('');
+        setPassword('');
+        setUsername('');
       } else {
         toast(<span>Please fill all required fields.</span>, {
           icon: <FaExclamationCircle className="text-yellow-500" />,
         });
       }
-    } catch (error) {
-      toast.error(`${error}`);
+    } catch (error: any) {
+      toast.error(error.message || 'Error creating account');
     }
     setSignupButton('Sign Up');
-  }
-
-  async function createUser(userId: string) {
-    try {
-      const { error } = await supabase
-        .from('users')
-        .insert({ id: userId, username: username });
-      if (error) throw error;
-      toast.success(
-        <div className="flex flex-col gap-2">
-          <span>Your account has been successfully created!</span>
-          <b>
-            Check your email inbox and follow the link to verify your account.
-          </b>
-        </div>
-      );
-      setEmail('');
-      setPassword('');
-      setUsername('');
-    } catch (error) {
-      toast.error('That email address is already in use!');
-    }
   }
 
   return (
@@ -97,8 +70,7 @@ const SignUp = () => {
                 Create an account
               </h2>
             </div>
-            <form className="mt-8 space-y-6" action="#" method="POST">
-              <input type="hidden" name="remember" defaultValue="true" />
+            <form className="mt-8 space-y-6" onSubmit={(e) => { e.preventDefault(); signUpWithEmail(); }}>
               <div className="-space-y-px rounded-md shadow-sm">
                 <div>
                   <label htmlFor="username" className="sr-only">
@@ -152,8 +124,7 @@ const SignUp = () => {
 
               <div className="flex flex-col gap-3">
                 <button
-                  onClick={signUpWithEmail}
-                  type="button"
+                  type="submit"
                   className="flex w-full justify-center rounded-md border border-transparent shadow-lg hover:opacity-90 bg-gradient-to-br from-emerald-500 to-emerald-600 py-2 px-4 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                   {signupButton}
@@ -177,7 +148,7 @@ const SignUp = () => {
           </div>
         </div>
         <span className="text-white w-full flex justify-center text-sm absolute bottom-5 mt-8 font-semibold font-mono">
-          © André Pichardo 2023
+          &copy; Andr&eacute; Pichardo 2023
         </span>
       </div>
     </>
